@@ -1,8 +1,10 @@
+---
 title: "This Week's Album Picks"
 date: 2015-10-16
 description: "The past 2 weeks have been hectic with travel and work so I'm looking forward to finally catching up on some music."
 tags: ["music", "newreleases", "albums"]
 draft: false
+---
 
 The past 2 weeks have been hectic with travel and work so I'm looking forward to finally catching up on some music. There's been a number of releases from some of my favorite artists, and since I'm in London I'm trying to sample some local sounds too.
 

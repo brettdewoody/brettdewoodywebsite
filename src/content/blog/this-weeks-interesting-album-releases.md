@@ -1,8 +1,10 @@
+---
 title: "This Week's Interesting Album Releases"
 date: 2015-09-25
 description: "Fall is here and music releases are picking up in both quantity and quality."
 tags: ["music", "newreleases", "albums"]
 draft: false
+---
 
 Fall is here and music releases are picking up in both quantity and quality.
 
