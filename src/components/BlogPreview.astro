@@ -1,0 +1,66 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BlogCard from './BlogCard.astro';
+
+interface Props {
+  posts: CollectionEntry<'blog'>[];
+}
+
+const { posts } = Astro.props;
+---
+
+<section class="blog-preview" id="blog">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-heading neon-text-purple">Latest Writing</h2>
+      <a href="/blog" class="btn-neon">View all posts</a>
+    </div>
+
+    {posts.length === 0 ? (
+      <p class="empty">No posts yet — check back soon.</p>
+    ) : (
+      <div class="posts-grid">
+        {posts.map(post => <BlogCard post={post} />)}
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+  }
+
+  .section-heading {
+    margin-bottom: 0;
+  }
+
+  .section-heading::after {
+    background: linear-gradient(90deg, var(--color-neon-purple), var(--color-neon-cyan), transparent);
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .empty {
+    color: var(--color-muted);
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    margin-top: 2rem;
+  }
+</style>

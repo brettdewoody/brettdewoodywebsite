@@ -1,0 +1,123 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { title, date, description, tags = [] } = post.data;
+
+const formattedDate = date.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+---
+
+<article class="blog-card neon-card">
+  <a href={`/blog/${post.id}`} class="card-link">
+    <header>
+      <time class="post-date" datetime={date.toISOString()}>{formattedDate}</time>
+      <h3 class="post-title">{title}</h3>
+      <p class="post-desc">{description}</p>
+    </header>
+
+    <footer class="card-footer">
+      {tags.length > 0 && (
+        <div class="tags">
+          {tags.slice(0, 3).map((tag: string, i: number) => (
+            <span class:list={['tag', i % 2 === 1 ? 'tag-magenta' : '']}>
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+      <span class="read-more">Read →</span>
+    </footer>
+  </a>
+</article>
+
+<style>
+  .blog-card {
+    transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .card-link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1.6rem;
+    color: var(--color-text) !important;
+    text-shadow: none !important;
+  }
+
+  .post-date {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: 0.7rem;
+  }
+
+  .post-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--color-text);
+    margin: 0 0 0.6rem;
+    line-height: 1.3;
+    transition: color 0.2s;
+  }
+
+  .blog-card:hover .post-title {
+    color: var(--color-neon-cyan);
+  }
+
+  .post-desc {
+    color: #8888b0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.2rem;
+    gap: 0.5rem;
+  }
+
+  .tags {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .read-more {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: var(--color-muted);
+    white-space: nowrap;
+    transition: color 0.2s;
+    flex-shrink: 0;
+  }
+
+  .blog-card:hover .read-more {
+    color: var(--color-neon-cyan);
+  }
+</style>

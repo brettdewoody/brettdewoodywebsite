@@ -1,0 +1,109 @@
+---
+const skillGroups = [
+  {
+    label: 'AI Tooling & Workflows',
+    skills: ['LLMs', 'Claude API', 'OpenAI API', 'Prompt Engineering', 'RAG', 'MCP', 'AI-Augmented Dev Workflows', 'Cursor', 'Claude Code'],
+    color: 'magenta',
+  },
+  {
+    label: 'Languages & Backend',
+    skills: ['JavaScript', 'TypeScript', 'HTML', 'CSS', 'PHP', 'SQL', 'Node.js', 'REST', 'SaaS Development'],
+    color: 'cyan',
+  },
+  {
+    label: 'Frontend',
+    skills: ['React', 'Vue.js', 'Astro', 'Zurb Foundation', 'Tailwind CSS', 'Vite'],
+    color: 'magenta',
+  },
+  {
+    label: 'Architecture & Patterns',
+    skills: ['Frontend Architecture', 'Component Systems', 'SPA', 'Performance', 'Accessibility'],
+    color: 'purple',
+  },
+  {
+    label: 'Leadership',
+    skills: ['Engineering Management', 'Team Building', 'Mentoring', 'Code Review', 'Remote Teams'],
+    color: 'magenta',
+  },
+  {
+    label: 'Tooling & Platforms',
+    skills: ['Git', 'GitHub', 'Netlify', 'Vercel', 'Web Development', 'SEO'],
+    color: 'purple',
+  },
+];
+
+const colorMap: Record<string, string> = {
+  cyan: '',
+  magenta: 'tag-magenta',
+  purple: 'tag-purple',
+};
+---
+
+<section class="skills" id="skills">
+  <div class="container">
+    <h2 class="section-heading neon-text-magenta">Skills</h2>
+
+    <div class="skills-grid">
+      {skillGroups.map(group => (
+        <div class="skill-group">
+          <h3 class="group-label">{group.label}</h3>
+          <div class="tag-list">
+            {group.skills.map(skill => (
+              <span class:list={['tag', colorMap[group.color]]}>
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .skills {
+    background: var(--color-surface);
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+
+  .skill-group {
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 1.4rem;
+    transition: border-color 0.3s;
+  }
+
+  .skill-group:hover {
+    border-color: var(--color-neon-purple);
+    box-shadow: 0 0 12px rgba(191, 0, 255, 0.1);
+  }
+
+  .group-label {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin: 0 0 1rem;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+</style>
