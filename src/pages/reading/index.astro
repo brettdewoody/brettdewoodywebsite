@@ -1,0 +1,259 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const rawUrl = 'https://raw.githubusercontent.com/brettdewoody/reading-list/master/index.md';
+const res = await fetch(rawUrl);
+const text = await res.text();
+
+interface ReadingEntry {
+  date: Date;
+  url: string;
+  domain: string;
+  note: string;
+}
+
+function getDomain(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+}
+
+function parseReadingList(content: string): ReadingEntry[] {
+  const lines = content.split('\n');
+  const entries: ReadingEntry[] = [];
+  let currentDate: Date | null = null;
+  let currentUrl: string | null = null;
+  let noteLines: string[] = [];
+
+  const flush = () => {
+    if (currentDate && currentUrl) {
+      entries.push({
+        date: currentDate,
+        url: currentUrl,
+        domain: getDomain(currentUrl),
+        note: noteLines.join(' ').trim(),
+      });
+    }
+    currentDate = null;
+    currentUrl = null;
+    noteLines = [];
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    // Date lines look like: "Tue Feb 16 10:02:38 2021"
+    if (/^\w{3} \w{3}\s+\d{1,2} \d{2}:\d{2}:\d{2} \d{4}$/.test(line)) {
+      flush();
+      currentDate = new Date(line);
+      continue;
+    }
+
+    if (!currentDate) continue;
+
+    if (!currentUrl) {
+      // URL wrapped in markdown link syntax [url](url) or raw
+      const mdMatch = line.match(/\[([^\]]+)\]\(([^)]+)\)/);
+      if (mdMatch) {
+        currentUrl = mdMatch[2];
+      } else if (/^https?:\/\//.test(line)) {
+        currentUrl = line;
+      }
+    } else {
+      noteLines.push(line);
+    }
+  }
+  flush();
+
+  return entries;
+}
+
+const entries = parseReadingList(text);
+
+// Group by year, newest first
+const byYear = new Map<number, ReadingEntry[]>();
+for (const entry of entries) {
+  const year = entry.date.getFullYear();
+  if (!byYear.has(year)) byYear.set(year, []);
+  byYear.get(year)!.push(entry);
+}
+const years = [...byYear.keys()].sort((a, b) => b - a);
+
+const formatDate = (d: Date) =>
+  d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+---
+
+<Base
+  title="Reading — Brett DeWoody"
+  description="Links and articles I've found worth reading — engineering, leadership, product, and more."
+>
+  <div class="reading-listing">
+    <header class="listing-header">
+      <div class="container">
+        <a href="/" class="back-link">← Back</a>
+        <h1 class="page-title gradient-text">Reading</h1>
+        <p class="page-desc">
+          Things I've read and found worth saving. Engineering, leadership, product, and the
+          occasional rabbit hole. {entries.length} links since {years[years.length - 1]}.
+        </p>
+        <hr class="neon-divider" />
+      </div>
+    </header>
+
+    <div class="container">
+      {years.map(year => (
+        <section class="year-group">
+          <h2 class="year-heading">{year}</h2>
+          <ul class="entry-list">
+            {byYear.get(year)!.map(entry => (
+              <li class="entry">
+                <a href={entry.url} target="_blank" rel="noopener noreferrer" class="entry-link">
+                  <span class="entry-url">{entry.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '').substring(0, 80)}{entry.url.replace(/^https?:\/\/(www\.)?/, '').length > 80 ? '…' : ''}</span>
+                  <span class="entry-domain">{entry.domain}</span>
+                </a>
+                {entry.note && <p class="entry-note">{entry.note}</p>}
+                <time class="entry-date" datetime={entry.date.toISOString()}>{formatDate(entry.date)}</time>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  </div>
+</Base>
+
+<style>
+  .reading-listing {
+    padding-top: 7rem;
+    padding-bottom: 5rem;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .listing-header {
+    margin-bottom: 3rem;
+  }
+
+  .back-link {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    color: var(--color-muted);
+  }
+
+  .back-link:hover {
+    color: var(--color-neon-cyan);
+    text-shadow: 0 0 8px var(--color-neon-cyan);
+  }
+
+  .page-title {
+    font-size: clamp(2rem, 6vw, 4rem);
+    line-height: 1.1;
+    margin-bottom: 0.8rem;
+  }
+
+  .page-desc {
+    color: var(--color-muted);
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    max-width: 600px;
+  }
+
+  .neon-divider {
+    margin-bottom: 0;
+  }
+
+  .year-group {
+    margin-top: 3rem;
+  }
+
+  .year-heading {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-neon-magenta);
+    text-shadow: 0 0 8px var(--color-neon-magenta);
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .entry-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .entry {
+    padding: 0.85rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 0 1rem;
+    align-items: start;
+  }
+
+  .entry-link {
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .entry-link:hover .entry-url {
+    color: var(--color-neon-cyan);
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+  }
+
+  .entry-url {
+    font-size: 0.9rem;
+    color: var(--color-text);
+    word-break: break-all;
+    transition: color 0.2s, text-shadow 0.2s;
+  }
+
+  .entry-domain {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .entry-note {
+    grid-column: 1 / -1;
+    margin: 0.4rem 0 0;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .entry-date {
+    grid-column: 2;
+    grid-row: 1;
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--color-muted);
+    white-space: nowrap;
+    padding-top: 0.15rem;
+  }
+</style>
