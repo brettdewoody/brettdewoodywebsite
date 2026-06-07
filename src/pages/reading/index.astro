@@ -1,16 +1,15 @@
 ---
 import Base from '../../layouts/Base.astro';
 
-const rawUrl = 'https://raw.githubusercontent.com/brettdewoody/reading-list/master/index.md';
-const res = await fetch(rawUrl);
-const text = await res.text();
-
 interface ReadingEntry {
-  date: Date;
+  date: string;
   url: string;
-  domain: string;
+  title: string | null;
   note: string;
 }
+
+const res = await fetch('https://raw.githubusercontent.com/brettdewoody/reading-list/master/data.json');
+const entries: ReadingEntry[] = await res.json();
 
 function getDomain(url: string): string {
   try {
@@ -20,61 +19,8 @@ function getDomain(url: string): string {
   }
 }
 
-function parseReadingList(content: string): ReadingEntry[] {
-  const lines = content.split('\n');
-  const entries: ReadingEntry[] = [];
-  let currentDate: Date | null = null;
-  let currentUrl: string | null = null;
-  let noteLines: string[] = [];
-
-  const flush = () => {
-    if (currentDate && currentUrl) {
-      entries.push({
-        date: currentDate,
-        url: currentUrl,
-        domain: getDomain(currentUrl),
-        note: noteLines.join(' ').trim(),
-      });
-    }
-    currentDate = null;
-    currentUrl = null;
-    noteLines = [];
-  };
-
-  for (const rawLine of lines) {
-    const line = rawLine.trim();
-    if (!line) continue;
-
-    // Date lines look like: "Tue Feb 16 10:02:38 2021"
-    if (/^\w{3} \w{3}\s+\d{1,2} \d{2}:\d{2}:\d{2} \d{4}$/.test(line)) {
-      flush();
-      currentDate = new Date(line);
-      continue;
-    }
-
-    if (!currentDate) continue;
-
-    if (!currentUrl) {
-      // URL wrapped in markdown link syntax [url](url) or raw
-      const mdMatch = line.match(/\[([^\]]+)\]\(([^)]+)\)/);
-      if (mdMatch) {
-        currentUrl = mdMatch[2];
-      } else if (/^https?:\/\//.test(line)) {
-        currentUrl = line;
-      }
-    } else {
-      noteLines.push(line);
-    }
-  }
-  flush();
-
-  return entries;
-}
-
-const entries = parseReadingList(text);
-
-const formatDate = (d: Date) =>
-  d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 ---
 
 <Base
@@ -99,11 +45,11 @@ const formatDate = (d: Date) =>
         {entries.map(entry => (
           <li class="entry">
             <a href={entry.url} target="_blank" rel="noopener noreferrer" class="entry-link">
-              <span class="entry-url">{entry.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '').substring(0, 80)}{entry.url.replace(/^https?:\/\/(www\.)?/, '').length > 80 ? '…' : ''}</span>
-              <span class="entry-domain">{entry.domain}</span>
+              <span class="entry-title">{entry.title ?? getDomain(entry.url)}</span>
+              <span class="entry-domain">{getDomain(entry.url)}</span>
             </a>
             {entry.note && <p class="entry-note">{entry.note}</p>}
-            <time class="entry-date" datetime={entry.date.toISOString()}>{formatDate(entry.date)}</time>
+            <time class="entry-date" datetime={entry.date}>{formatDate(entry.date)}</time>
           </li>
         ))}
       </ul>
@@ -160,13 +106,11 @@ const formatDate = (d: Date) =>
   }
 
   .entry-list {
-    margin-top: 2rem;
     list-style: none;
-    margin: 0;
+    margin: 2rem 0 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0;
   }
 
   .entry {
@@ -187,15 +131,14 @@ const formatDate = (d: Date) =>
     min-width: 0;
   }
 
-  .entry-link:hover .entry-url {
+  .entry-link:hover .entry-title {
     color: var(--color-neon-cyan);
     text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
   }
 
-  .entry-url {
-    font-size: 0.9rem;
+  .entry-title {
+    font-size: 0.95rem;
     color: var(--color-text);
-    word-break: break-all;
     transition: color 0.2s, text-shadow 0.2s;
   }
 
@@ -224,6 +167,6 @@ const formatDate = (d: Date) =>
     letter-spacing: 0.08em;
     color: var(--color-muted);
     white-space: nowrap;
-    padding-top: 0.15rem;
+    padding-top: 0.2rem;
   }
 </style>
