@@ -73,17 +73,8 @@ function parseReadingList(content: string): ReadingEntry[] {
 
 const entries = parseReadingList(text);
 
-// Group by year, newest first
-const byYear = new Map<number, ReadingEntry[]>();
-for (const entry of entries) {
-  const year = entry.date.getFullYear();
-  if (!byYear.has(year)) byYear.set(year, []);
-  byYear.get(year)!.push(entry);
-}
-const years = [...byYear.keys()].sort((a, b) => b - a);
-
 const formatDate = (d: Date) =>
-  d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 ---
 
 <Base
@@ -104,23 +95,18 @@ const formatDate = (d: Date) =>
     </header>
 
     <div class="container">
-      {years.map(year => (
-        <section class="year-group">
-          <h2 class="year-heading">{year}</h2>
-          <ul class="entry-list">
-            {byYear.get(year)!.map(entry => (
-              <li class="entry">
-                <a href={entry.url} target="_blank" rel="noopener noreferrer" class="entry-link">
-                  <span class="entry-url">{entry.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '').substring(0, 80)}{entry.url.replace(/^https?:\/\/(www\.)?/, '').length > 80 ? '…' : ''}</span>
-                  <span class="entry-domain">{entry.domain}</span>
-                </a>
-                {entry.note && <p class="entry-note">{entry.note}</p>}
-                <time class="entry-date" datetime={entry.date.toISOString()}>{formatDate(entry.date)}</time>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+      <ul class="entry-list">
+        {entries.map(entry => (
+          <li class="entry">
+            <a href={entry.url} target="_blank" rel="noopener noreferrer" class="entry-link">
+              <span class="entry-url">{entry.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '').substring(0, 80)}{entry.url.replace(/^https?:\/\/(www\.)?/, '').length > 80 ? '…' : ''}</span>
+              <span class="entry-domain">{entry.domain}</span>
+            </a>
+            {entry.note && <p class="entry-note">{entry.note}</p>}
+            <time class="entry-date" datetime={entry.date.toISOString()}>{formatDate(entry.date)}</time>
+          </li>
+        ))}
+      </ul>
     </div>
   </div>
 </Base>
@@ -173,24 +159,8 @@ const formatDate = (d: Date) =>
     margin-bottom: 0;
   }
 
-  .year-group {
-    margin-top: 3rem;
-  }
-
-  .year-heading {
-    font-family: var(--font-display);
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--color-neon-magenta);
-    text-shadow: 0 0 8px var(--color-neon-magenta);
-    margin-bottom: 1.2rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--color-border);
-  }
-
   .entry-list {
+    margin-top: 2rem;
     list-style: none;
     margin: 0;
     padding: 0;
