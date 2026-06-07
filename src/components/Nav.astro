@@ -5,6 +5,7 @@ const links = [
   { href: '/#about',      label: 'About' },
   { href: '/#experience', label: 'Experience' },
   { href: '/blog',        label: 'Blog' },
+  { href: 'https://brettdewoody.github.io/reading-list/', label: 'Reading', external: true },
   { href: '/#contact',    label: 'Contact' },
 ];
 ---
@@ -13,11 +14,12 @@ const links = [
   <div class="nav-inner">
     <a href="/" class="nav-logo">BD<span class="nav-logo-dot">.</span></a>
     <ul class="nav-links">
-      {links.map(({ href, label }) => (
+      {links.map(({ href, label, external }) => (
         <li>
           <a
             href={href}
             class:list={['nav-link', { active: currentPath === href }]}
+            {...(external ? { target: '_blank', rel: 'noopener' } : {})}
           >
             {label}
           </a>
@@ -30,8 +32,8 @@ const links = [
   </div>
 
   <ul class="nav-mobile" id="navMobile">
-    {links.map(({ href, label }) => (
-      <li><a href={href} class="nav-link">{label}</a></li>
+    {links.map(({ href, label, external }) => (
+      <li><a href={href} class="nav-link" {...(external ? { target: '_blank', rel: 'noopener' } : {})}>{label}</a></li>
     ))}
   </ul>
 </nav>
