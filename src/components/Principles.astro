@@ -1,0 +1,89 @@
+---
+const principles = [
+  {
+    num: '01',
+    title: 'Work Hard',
+    body: 'Whatever you\'re given, dive in completely. Full commitment to the task — no half-measures, no coasting.',
+  },
+  {
+    num: '02',
+    title: 'Be Open',
+    body: 'Keep the door open so people feel they can come to you with anything. Be transparent with information, honest in your assessments, and generous with what you know.',
+  },
+  {
+    num: '03',
+    title: 'Get Shit Done',
+    body: 'Done is better than perfect. Momentum matters. Ship it, learn from it, improve it.',
+  },
+];
+---
+
+<section class="principles" id="principles">
+  <div class="container">
+    <h2 class="section-heading neon-text-cyan">Principles</h2>
+    <div class="principles-grid">
+      {principles.map(p => (
+        <div class="principle neon-card">
+          <span class="principle-num">{p.num}</span>
+          <h3 class="principle-title gradient-text">{p.title}</h3>
+          <p class="principle-body">{p.body}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .principles {
+    background: var(--color-bg);
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 5rem 1.5rem;
+  }
+
+  .principles-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+  }
+
+  .principle {
+    padding: 2rem 1.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .principle-num {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--color-neon-magenta);
+    text-shadow: 0 0 8px var(--color-neon-magenta);
+  }
+
+  .principle-title {
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin: 0;
+  }
+
+  .principle-body {
+    color: #b0b0d8;
+    font-size: 1rem;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .principles-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
