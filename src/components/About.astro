@@ -184,13 +184,12 @@ import headshot from '../../public/brett-dewoody.jpg';
     }
 
     .about-stats {
-      flex-direction: row;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
     }
 
     .stat-card {
-      flex: 1;
-      min-width: 140px;
+      min-width: 0;
     }
 
     .stat-num {
